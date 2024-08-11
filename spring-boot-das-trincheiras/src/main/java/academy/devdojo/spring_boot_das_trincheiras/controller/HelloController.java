@@ -1,4 +1,4 @@
-package academy.devdojo.spring_boot_das_trincheiras.controllers;
+package academy.devdojo.spring_boot_das_trincheiras.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

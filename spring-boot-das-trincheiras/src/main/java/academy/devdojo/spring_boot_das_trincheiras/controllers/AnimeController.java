@@ -12,6 +12,6 @@ public class AnimeController {
 
     @GetMapping
     public List<String> listAll() {
-        return List.of("Naruto", "One Piece", "Attack on Titan", "Love Hina", "Inuyasha");
+        return List.of("Naruto", "One Piece", "Attack on Titan", "Love Hina", "Inuyasha", "Bleach");
     }
 }

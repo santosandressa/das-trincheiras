@@ -1,0 +1,30 @@
+name: Auto Pull Request to Developer
+
+on:
+  push:
+    branches:
+      - 'feature/**'  # Ou use uma expressão regular que capture suas branches de feature
+
+jobs:
+  create-pull-request:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Git
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+
+      - name: Create Pull Request
+        id: create_pr
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: developer
+          branch: ${{ github.ref_name }}
+          title: 'Auto PR from ${{ github.ref_name }}'
+          body: |
+            This pull request was automatically created by a GitHub Action.

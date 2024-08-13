@@ -8,7 +8,7 @@ server:
   servlet:
       context-path: /${spring.application.name}
   error:
-    include-message: on_param
+    include-stacktrace: on_param
   tomcat:
     threads:
       max: 20

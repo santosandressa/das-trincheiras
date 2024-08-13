@@ -17,4 +17,6 @@ public class AnimeController {
         log.info(Thread.currentThread().getName());
         return List.of("Naruto", "One Piece", "Attack on Titan", "Love Hina");
     }
+
+
 }

@@ -1,6 +1,8 @@
 package academy.devdojo.spring_boot_das_trincheiras.controllers;
 
 import academy.devdojo.spring_boot_das_trincheiras.domain.Producer;
+import academy.devdojo.spring_boot_das_trincheiras.dto.request.ProducerDTORequest;
+import academy.devdojo.spring_boot_das_trincheiras.dto.response.ProducerDTOResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -8,15 +10,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 @RestController
 @RequestMapping("/v1/producers")
 @Slf4j
 @RequiredArgsConstructor
 public class ProducerController {
-    private final Random random = new Random();
 
     @GetMapping
     public List<Producer> listAll() {
@@ -46,9 +48,22 @@ public class ProducerController {
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             headers = "x-api-key=v1")
-    public ResponseEntity<Producer> save(@RequestBody Producer producer) {
-        producer.setId(random.nextLong());
-        Producer.geProducerList().add(producer);
-        return ResponseEntity.status(HttpStatus.CREATED).body(producer);
+    public ResponseEntity<ProducerDTOResponse> save(@RequestBody ProducerDTORequest producerDTORequest) {
+        Producer producer = Producer.builder()
+                .id(ThreadLocalRandom.current().nextLong(1, 1000))
+                .name(producerDTORequest.getName())
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        Producer.geProducerList().add(
+                producer);
+
+        ProducerDTOResponse response = ProducerDTOResponse.builder()
+                .id(producer.getId())
+                .name(producer.getName())
+                .createdAt(producer.getCreatedAt())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

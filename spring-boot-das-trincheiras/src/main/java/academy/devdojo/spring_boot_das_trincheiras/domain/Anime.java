@@ -1,24 +1,25 @@
 package academy.devdojo.spring_boot_das_trincheiras.domain;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class Anime {
 
     private Long id;
     private String name;
+    private LocalDateTime createdAt;
     private static List<Anime> animes = new ArrayList<>();
 
     static {
-        var ninjaKamui = new Anime(1L, "Ninja Kamui");
-        var kaiju = new Anime(2L, "Kaijuu-gou");
-        var kimetsuNoYaiba = new Anime(3L, "Kimetsu no Yaiba");
+        var ninjaKamui = Anime.builder().id(1L).name("Ninja Kamui").createdAt(LocalDateTime.now()).build();
+        var kaiju = Anime.builder().id(2L).name("Kaijuu-gou").createdAt(LocalDateTime.now()).build();
+        var kimetsuNoYaiba = Anime.builder().id(3L).name("Kimetsu no Yaiba").createdAt(LocalDateTime.now()).build();
 
         animes.addAll(List.of(ninjaKamui, kaiju, kimetsuNoYaiba));
     }

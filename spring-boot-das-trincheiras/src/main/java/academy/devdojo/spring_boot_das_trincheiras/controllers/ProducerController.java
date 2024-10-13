@@ -3,6 +3,7 @@ package academy.devdojo.spring_boot_das_trincheiras.controllers;
 import academy.devdojo.spring_boot_das_trincheiras.domain.Producer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -48,6 +49,6 @@ public class ProducerController {
     public ResponseEntity<Producer> save(@RequestBody Producer producer) {
         producer.setId(random.nextLong());
         Producer.geProducerList().add(producer);
-        return ResponseEntity.ok(producer);
+        return ResponseEntity.status(HttpStatus.CREATED).body(producer);
     }
 }

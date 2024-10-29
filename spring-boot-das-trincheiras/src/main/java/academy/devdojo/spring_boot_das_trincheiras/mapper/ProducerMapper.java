@@ -7,6 +7,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface ProducerMapper {
     ProducerMapper INSTANCE = Mappers.getMapper(ProducerMapper.class);
@@ -15,5 +17,7 @@ public interface ProducerMapper {
     @Mapping(target= "id", expression = "java(java.util.concurrent.ThreadLocalRandom.current().nextLong(1, 1000))")
     Producer toProducer(ProducerDTORequest producerDTORequest);
 
-    ProducerDTOResponse toProducerDTOResponse(Producer producer);
+    ProducerDTOResponse toProducerGetResponse(Producer producer);
+
+    List<ProducerDTOResponse> toProducerGetResponseList(List<Producer> producers);
 }

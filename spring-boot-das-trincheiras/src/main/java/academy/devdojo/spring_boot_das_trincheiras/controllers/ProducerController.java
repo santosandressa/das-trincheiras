@@ -6,6 +6,7 @@ import academy.devdojo.spring_boot_das_trincheiras.dto.response.ProducerDTORespo
 import academy.devdojo.spring_boot_das_trincheiras.mapper.ProducerMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,39 +23,41 @@ public class ProducerController {
     private static final ProducerMapper MAPPER = ProducerMapper.INSTANCE;
 
     @GetMapping
-    public List<Producer> listAll() {
-        log.info(Thread.currentThread().getName());
-        return Producer.geProducerList();
+    public ResponseEntity<List<ProducerDTOResponse>> listAll(@RequestParam String name) {
+        log.debug("Request received to list all producers, param name '{}'", name);
+
+        var producers = Producer.geProducerList();
+        var producerGetResponseList = MAPPER.toProducerGetResponseList(producers);
+
+        if (name == null) return ResponseEntity.ok(producerGetResponseList);
+
+        var response = producerGetResponseList.stream().filter(producer -> producer.getName().equalsIgnoreCase(name)).toList();
+
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/filter")
-    public List<Producer> filter(@RequestParam(required = false) String name) {
-        var producer = Producer.geProducerList();
-        if (name == null) return producer;
-        return producer
-                .stream()
-                .filter(anime1 -> anime1.getName().equalsIgnoreCase(name))
-                .toList();
-    }
+    @GetMapping("{id}")
+    public ResponseEntity<ProducerDTOResponse> findById(@PathVariable Long id) {
+        log.debug("Request to find producer by id: {}", id);
 
-    @GetMapping("/{id}")
-    public Producer findById(@PathVariable Long id) {
-        return Producer.geProducerList()
+        var producerGetResponse = Producer.geProducerList()
                 .stream()
                 .filter(producer -> producer.getId().equals(id))
                 .findFirst()
+                .map(MAPPER::toProducerGetResponse)
                 .orElse(null);
+
+        return ResponseEntity.ok(producerGetResponse);
     }
 
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE,
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            headers = "x-api-key=v1")
-    public ResponseEntity<ProducerDTOResponse> save(@RequestBody ProducerDTORequest producerDTORequest) {
-        Producer producer = MAPPER.toProducer(producerDTORequest);
-        ProducerDTOResponse response = MAPPER.toProducerDTOResponse(producer);
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE,
+            headers = "x-api-key")
+    public ResponseEntity<ProducerDTOResponse> save(@RequestBody ProducerDTORequest producerPostRequest, @RequestHeader HttpHeaders headers) {
+        log.info("{}", headers);
+        var producer = MAPPER.toProducer(producerPostRequest);
+        var response = MAPPER.toProducerGetResponse(producer);
 
-        Producer.geProducerList().add(
-                producer);
+        Producer.geProducerList().add(producer);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

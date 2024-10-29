@@ -4,6 +4,7 @@ import academy.devdojo.spring_boot_das_trincheiras.domain.Anime;
 import academy.devdojo.spring_boot_das_trincheiras.dto.request.AnimeDTORequest;
 import academy.devdojo.spring_boot_das_trincheiras.dto.response.AnimeDTOResponse;
 import academy.devdojo.spring_boot_das_trincheiras.mapper.AnimeMapper;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,7 +18,11 @@ import java.util.List;
 @RequestMapping("/v1/animes")
 @Slf4j
 @RequiredArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class AnimeController {
+
+    @EqualsAndHashCode.Include
+    private Long id;
 
     private static final AnimeMapper MAPPER = AnimeMapper.INSTANCE;
 
@@ -64,5 +69,17 @@ public class AnimeController {
         AnimeDTOResponse animeDTOResponse = MAPPER.toAnimeDTOResponse(anime);
         Anime.getAnimeList().add(anime);
         return ResponseEntity.status(HttpStatus.CREATED).body(animeDTOResponse);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        Anime anime = Anime.getAnimeList()
+                .stream()
+                .filter(animeFilter -> animeFilter.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Anime not found"));
+
+        Anime.getAnimeList().remove(anime);
+        return ResponseEntity.noContent().build();
     }
 }

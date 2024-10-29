@@ -4,6 +4,7 @@ import academy.devdojo.spring_boot_das_trincheiras.domain.Producer;
 import academy.devdojo.spring_boot_das_trincheiras.dto.request.ProducerDTORequest;
 import academy.devdojo.spring_boot_das_trincheiras.dto.response.ProducerDTOResponse;
 import academy.devdojo.spring_boot_das_trincheiras.mapper.ProducerMapper;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -18,7 +20,11 @@ import java.util.List;
 @RequestMapping("/v1/producers")
 @Slf4j
 @RequiredArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ProducerController {
+
+    @EqualsAndHashCode.Include
+    private Long id;
 
     private static final ProducerMapper MAPPER = ProducerMapper.INSTANCE;
 
@@ -45,7 +51,8 @@ public class ProducerController {
                 .filter(producer -> producer.getId().equals(id))
                 .findFirst()
                 .map(MAPPER::toProducerGetResponse)
-                .orElse(null);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producer not found"));
+
 
         return ResponseEntity.ok(producerGetResponse);
     }
@@ -61,4 +68,19 @@ public class ProducerController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        log.debug("Request to delete producer by id: {}", id);
+
+        var producerToDelete = Producer.geProducerList()
+                .stream()
+                .filter(prod -> prod.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producer not found"));
+
+        Producer.geProducerList().remove(producerToDelete);
+        return ResponseEntity.noContent().build();
+    }
+
 }
